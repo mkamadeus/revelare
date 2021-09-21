@@ -1,9 +1,9 @@
-from stegano.utils import bmp_to_bytes, bytes_to_bmp
-from stegano.steganography import extract_message, inject_message
+from revelare.utils import load_bmp, write_bmp
+from revelare.steganography import extract_message, inject_message
 from icecream import ic
 
-b = bmp_to_bytes("./mocks/bmp/snail.bmp")
-img = inject_message(b, "asdas", random=True)
-msg = extract_message(img, random=True)
+b = load_bmp("./mocks/bmp/snail.bmp")
+img = inject_message(b, "asdas")
+msg = extract_message(img)
 ic(msg)
-bytes_to_bmp(img, "lol.bmp")
+write_bmp(img, "lol.bmp")

@@ -1,5 +1,5 @@
 test:
-	python -m pytest tests/
+	python -m pytest --quiet tests/
 .PHONY: test
 
 format:

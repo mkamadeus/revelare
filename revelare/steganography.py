@@ -53,6 +53,6 @@ def extract_message(image: np.ndarray, random=False, seed=42) -> str:
         order = np.random.shuffle(order)
 
     message_length = np.packbits(lsb_array[order[0]])[0]
-    message = np.packbits(lsb_array[order[1 : message_length + 1]]).tostring().decode("utf-8")
+    message = np.packbits(lsb_array[order[1 : message_length + 1]]).tobytes().decode("utf-8")
 
     return message
