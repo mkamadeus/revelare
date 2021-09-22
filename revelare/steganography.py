@@ -33,7 +33,6 @@ def inject_message(image: np.ndarray, message: str, random=False, seed=42) -> np
 
     # set each LSB to message bit
     stego_image[order] = (stego_image[order] & ~1) | message_bits
-    # for i, bit in list(zip(order, message_bits)):
 
     stego_image = stego_image.reshape(original_shape)
     return stego_image
