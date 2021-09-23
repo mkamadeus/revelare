@@ -1,7 +1,9 @@
 import numpy as np
 
 
-def inject_message(image: np.ndarray, message: str, random=False, seed=42) -> np.ndarray:
+def inject_message(
+    image: np.ndarray, message: str, random=False, seed=42
+) -> np.ndarray:
     if len(image.shape) != 3:
         raise ValueError("unsupported image format")
 
