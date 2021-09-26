@@ -4,12 +4,15 @@ from PyQt5.QtWidgets import (
     QApplication,
     QCheckBox,
     QComboBox,
+    QFileDialog,
     QFormLayout,
     QFrame,
     QMainWindow,
+    QMessageBox,
     QPushButton,
     QSpacerItem,
     QTabWidget,
+    QTextEdit,
     QWidget,
     QHBoxLayout,
     QVBoxLayout,
@@ -25,6 +28,7 @@ class AppWindow(QMainWindow):
         self.setObjectName("MainWindow")
         self.setEnabled(True)
         self.resize(800, 600)
+        self.setMinimumSize(800, 600)
 
         font = QFont()
         font.setFamily("Segoe UI")
@@ -64,7 +68,8 @@ class AppWindow(QMainWindow):
         self.coverObjectFrame = QFrame(self.coverLayoutWidget)
         self.coverObjectFrame.setFrameShape(QFrame.StyledPanel)
         self.coverObjectFrame.setFrameShadow(QFrame.Plain)
-        self.coverObjectFrame.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
+        self.coverObjectFrame.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
+        self.coverObjectFrame.setMinimumHeight(250)
         self.coverObjLayout.addWidget(self.coverObjectFrame)
 
         # Form
@@ -81,9 +86,12 @@ class AppWindow(QMainWindow):
         self.coverFormLayout.setWidget(0, QFormLayout.LabelRole, self.coverObjInputLabel)
         self.coverFormLayout.setWidget(0, QFormLayout.FieldRole, self.coverObjInputField)
 
-        # Save File Button
-        self.coverObjSaveBtn = QPushButton("Save File", self.coverFormWidget)
-        self.coverFormLayout.setWidget(1, QFormLayout.LabelRole, self.coverObjSaveBtn)
+        # Embedded Message
+        self.embeddedMsgLabel = QLabel("Embedded\nMessage", self.coverFormWidget)
+        self.embeddedMsgField = QTextEdit(self.coverFormWidget)
+        self.embeddedMsgField.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Preferred)
+        self.coverFormLayout.setWidget(1, QFormLayout.LabelRole, self.embeddedMsgLabel)
+        self.coverFormLayout.setWidget(1, QFormLayout.FieldRole, self.embeddedMsgField)
 
         self.tempSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
         self.coverObjLayout.addItem(self.tempSpacer)
@@ -131,7 +139,7 @@ class AppWindow(QMainWindow):
         self.stegoLayoutTitle = QLabel(self.stegoLayoutWidget)
         self.stegoLayoutTitle.setText(
             '<html><head/><body><p align="center">'
-            '<span style=" font-size:12pt; font-weight:600;">Cover Object & Embedded Message</span>'
+            '<span style=" font-size:12pt; font-weight:600;">Stego Object</span>'
             "</p></body></html>"
         )
         self.stegoObjLayout.addWidget(self.stegoLayoutTitle)
@@ -140,7 +148,8 @@ class AppWindow(QMainWindow):
         self.stegoObjectFrame = QFrame(self.stegoLayoutWidget)
         self.stegoObjectFrame.setFrameShape(QFrame.StyledPanel)
         self.stegoObjectFrame.setFrameShadow(QFrame.Plain)
-        self.stegoObjectFrame.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
+        self.stegoObjectFrame.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
+        self.stegoObjectFrame.setMinimumHeight(250)
         self.stegoObjLayout.addWidget(self.stegoObjectFrame)
 
         # Form
@@ -167,6 +176,32 @@ class AppWindow(QMainWindow):
         self.setCentralWidget(self.mainWidget)
 
         QMetaObject.connectSlotsByName(self)
+
+    def get_embedded_message(self):
+        return self.embeddedMsgField.toPlainText()
+
+    def set_embedded_message(self, text):
+        return self.embeddedMsgField.setText(text)
+
+
+def show_error_box(message: str, description: str = None):
+    msg = QMessageBox()
+    msg.setIcon(QMessageBox.Critical)
+    msg.setWindowTitle("Error")
+    msg.setText(message)
+    if description is not None:
+        msg.setInformativeText(description)
+    msg.exec_()
+
+
+def show_open_file_dialog(options: str = "All Files (*)") -> str:
+    fileName, _ = QFileDialog.getOpenFileName(None, "", "", options)
+    return fileName
+
+
+def show_save_file_dialog(options: str = "All Files (*)") -> str:
+    fileName, _ = QFileDialog.getSaveFileName(None, "", "", options)
+    return fileName
 
 
 def window():
