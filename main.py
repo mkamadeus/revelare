@@ -1,7 +1,5 @@
-from icecream import ic
 from revelare.gui.main import AppWindow
 from revelare.gui.steganography import StegoAppState, connect_app_to_state
-from revelare.utils import load_wav
 
 from PyQt5.QtWidgets import QApplication
 

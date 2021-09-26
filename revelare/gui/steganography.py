@@ -92,14 +92,14 @@ def __save_stego_obj(window: AppWindow, state: StegoAppState):
 def __run_embed(window: AppWindow, state: StegoAppState):
     message = window.get_embedded_message()
     data = state.cover_obj_data
+    seed = window.get_seed()
+    random = window.get_embed_mode() == 1
 
     if data is None:
         show_error_box("Execution Failure", "No cover object to embed to")
         return
 
-    # Random check
-
-    state.stego_obj_data = inject_message(data, message)
+    state.stego_obj_data = inject_message(data, message, random=random, seed=seed)
 
 
 def __run_extract(window: AppWindow, state: StegoAppState):

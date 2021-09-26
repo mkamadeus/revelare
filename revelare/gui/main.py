@@ -1,5 +1,5 @@
 from PyQt5.QtCore import QMetaObject
-from PyQt5.QtGui import QFont
+from PyQt5.QtGui import QFont, QIntValidator
 from PyQt5.QtWidgets import (
     QApplication,
     QCheckBox,
@@ -7,6 +7,7 @@ from PyQt5.QtWidgets import (
     QFileDialog,
     QFormLayout,
     QFrame,
+    QLineEdit,
     QMainWindow,
     QMessageBox,
     QPushButton,
@@ -122,9 +123,16 @@ class AppWindow(QMainWindow):
         self.embedModeLabel = QLabel("Mode", self.settingWidget)
         self.settingLayout.addWidget(self.embedModeLabel)
         self.embedModeField = QComboBox(self.settingWidget)
-        self.embedModeField.addItem("Sequential")
-        self.embedModeField.addItem("Dispersed")
+        self.embedModeField.addItem("Sequential")  # 0
+        self.embedModeField.addItem("Dispersed")  # 1
         self.settingLayout.addWidget(self.embedModeField)
+
+        # Random Seed
+        self.embedSeedLabel = QLabel("Random Seed", self.settingWidget)
+        self.settingLayout.addWidget(self.embedSeedLabel)
+        self.embedSeedField = QLineEdit("42", self.settingWidget)
+        self.embedSeedField.setValidator(QIntValidator())
+        self.settingLayout.addWidget(self.embedSeedField)
 
         self.tempSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
         self.settingLayout.addItem(self.tempSpacer)
@@ -179,6 +187,15 @@ class AppWindow(QMainWindow):
 
     def get_embedded_message(self):
         return self.embeddedMsgField.toPlainText()
+
+    def get_seed(self):
+        if self.embedSeedField.text():
+            return int(self.embedSeedField.text())
+        else:
+            return 42
+
+    def get_embed_mode(self):
+        return self.embedModeField.currentIndex()
 
     def set_embedded_message(self, text):
         return self.embeddedMsgField.setText(text)
