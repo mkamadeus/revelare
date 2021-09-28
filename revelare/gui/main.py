@@ -159,7 +159,7 @@ class AppWindow(QMainWindow):
         self.coverObjLayout.addWidget(self.coverFormWidget)
 
         # Load File Input
-        self.coverObjInputLabel = QPushButton("Load File", self.coverFormWidget)
+        self.coverObjInputLabel = QPushButton("Load Cover Object", self.coverFormWidget)
         self.coverObjInputField = QLabel("No file inserted", self.coverFormWidget)
         self.coverObjInputField.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Preferred)
         self.coverObjInputField.setWordWrap(True)
@@ -167,9 +167,10 @@ class AppWindow(QMainWindow):
         self.coverFormLayout.setWidget(0, QFormLayout.FieldRole, self.coverObjInputField)
 
         # Embedded Message
-        self.embeddedMsgLabel = QLabel("Embedded\nMessage", self.coverFormWidget)
-        self.embeddedMsgField = QTextEdit(self.coverFormWidget)
+        self.embeddedMsgLabel = QPushButton("Load Embed Message", self.coverFormWidget)
+        self.embeddedMsgField = QLabel("No file inserted", self.coverFormWidget)
         self.embeddedMsgField.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Preferred)
+        self.embeddedMsgField.setWordWrap(True)
         self.coverFormLayout.setWidget(1, QFormLayout.LabelRole, self.embeddedMsgLabel)
         self.coverFormLayout.setWidget(1, QFormLayout.FieldRole, self.embeddedMsgField)
 
@@ -264,9 +265,6 @@ class AppWindow(QMainWindow):
 
         QMetaObject.connectSlotsByName(self)
 
-    def get_embedded_message(self):
-        return self.embeddedMsgField.toPlainText()
-
     def get_seed(self):
         if self.embedSeedField.text():
             return int(self.embedSeedField.text())
@@ -275,9 +273,6 @@ class AppWindow(QMainWindow):
 
     def get_embed_mode(self):
         return self.embedModeField.currentIndex()
-
-    def set_embedded_message(self, text):
-        return self.embeddedMsgField.setText(text)
 
 
 def show_error_box(message: str, description: str = None):

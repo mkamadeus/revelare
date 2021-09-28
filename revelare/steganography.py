@@ -1,14 +1,14 @@
 import numpy as np
 
 
-def inject_message(
-    obj: np.ndarray, message: np.ndarray, random=False, seed=42
-) -> np.ndarray:
+def inject_message(obj: np.ndarray, message: np.ndarray, random=False, seed=42) -> np.ndarray:
     original_shape = obj.shape
     stego_obj = obj.flatten()
 
     # get bits from message
     message_bits = np.unpackbits(message)
+
+    print(message_bits)
 
     # get bits from message length
     length_bits = np.unpackbits(np.array([len(message)], dtype=np.uint8))
@@ -37,7 +37,7 @@ def inject_message(
     return stego_obj
 
 
-def extract_message(obj: np.ndarray) -> str:
+def extract_message(obj: np.ndarray) -> np.ndarray:
     obj = obj.flatten()
 
     # pack LSB to array
