@@ -1,5 +1,7 @@
 from revelare.gui.main import AppWindow
 from revelare.gui.steganography import StegoAppState, connect_app_to_state
+from revelare.gui.cryptography import connect_cryptography
+
 
 from PyQt5.QtWidgets import QApplication
 
@@ -9,7 +11,7 @@ class RevelareApplication(AppWindow):
 
     def __init__(self) -> None:
         super().__init__()
-
+        connect_cryptography(self)
         self.connect_buttons()
 
     def connect_buttons(self):

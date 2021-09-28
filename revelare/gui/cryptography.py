@@ -1,54 +1,24 @@
-import numpy as np
+from revelare.cryptography import crypt
+from revelare.gui.main import AppWindow
 
 
-def rc4_ksa(perm: np.array, key: np.array):
-    if len(key) == 0:
-        return
-    j = 0
+def connect_cryptography(window: AppWindow):
+    window.rc4KeyLineEdit.textChanged.connect(lambda: __crypto_refresh(window))
+    window.MessageField.textChanged.connect(lambda: __crypto_refresh(window))
+
+
+# ----- STATE UPDATE FUNCTIONS ----- #
+
+
+def __crypto_refresh(window: AppWindow):
+    newKey = window.rc4KeyLineEdit.text()
+    newMessage = window.MessageField.toPlainText()
+    result = crypt(newMessage, newKey)
     for i in range(256):
-        j += perm[i] + key[i % len(key)]
-        j %= 256
-        perm[i], perm[j] = perm[j], perm[i]
-
-
-def rc4_prga(perm: np.array, length: int) -> dict:
-    res = []
-    i = 0
-    j = 0
-    t = 0
-    for idx in range(length):
-        i = idx % 256
-        j = (j + perm[i]) % 256
-        perm[i], perm[j] = perm[j], perm[i]
-        t = (perm[i] + perm[j]) % 256
-        res.append(perm[t])
-    return {
-        "latest-i": i,
-        "latest-j": j,
-        "latest-t": t,
-        "keystream": np.array(res)
-    }
-
-
-def crypt(messageStr: str, keyStr: str) -> dict:
-    # Convert to np array
-    message = np.array(list(map(ord, messageStr)), dtype=np.uint8)
-    key = np.array(list(map(ord, keyStr)), dtype=np.uint8)
-
-    # Initiate permutation
-    perm = np.array([i for i in range(256)])
-    rc4_ksa(perm, key)
-
-    # Generate keystream of length len(message)
-    keystream_obj = rc4_prga(perm, len(message))
-
-    res = []
-    for i in range(len(message)):
-        res.append(message[i] ^ keystream_obj["keystream"][i])
-    
-    return {
-        "keystream_obj": keystream_obj,
-        "keystream": ''.join(map(chr, keystream_obj["keystream"])),
-        "perm": perm,
-        "result": ''.join(map(chr, res))
-    }
+        window.permutationLineEdit[i].setText(str(result["perm"][i]))
+        window.permutationLineEdit[i].setStyleSheet("border: 1px solid black")
+    window.permutationLineEdit[result["keystream_obj"]["latest-i"]].setStyleSheet("border: 3px solid green;")
+    window.permutationLineEdit[result["keystream_obj"]["latest-j"]].setStyleSheet("border: 3px solid blue;")
+    window.permutationLineEdit[result["keystream_obj"]["latest-t"]].setStyleSheet("border: 3px solid red;")
+    window.KeystreamField.setText(result["keystream"])
+    window.ResultField.setText(result["result"])
