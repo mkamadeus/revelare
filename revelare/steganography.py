@@ -1,12 +1,11 @@
 import numpy as np
 
 
-def inject_message(image: np.ndarray, message: np.ndarray, random=False, seed=42) -> np.ndarray:
-    if len(image.shape) != 3:
-        raise ValueError("unsupported image format")
-
-    original_shape = object.shape
-    stego_object = object.flatten()
+def inject_message(
+    obj: np.ndarray, message: np.ndarray, random=False, seed=42
+) -> np.ndarray:
+    original_shape = obj.shape
+    stego_obj = obj.flatten()
 
     # get bits from message
     message_bits = np.unpackbits(message)
@@ -22,8 +21,8 @@ def inject_message(image: np.ndarray, message: np.ndarray, random=False, seed=42
     seed_bits = np.unpackbits(np.array([seed], dtype=np.uint8))
 
     # append info together
-    stego_object[:8] = (stego_object[:8] & ~1) | length_bits
-    stego_object[8:16] = (stego_object[8:16] & ~1) | seed_bits
+    stego_obj[:8] = (stego_obj[:8] & ~1) | length_bits
+    stego_obj[8:16] = (stego_obj[8:16] & ~1) | seed_bits
 
     # LSB change order
     order = np.arange(start=2 * 8, stop=(2 + len(message)) * 8)
@@ -32,20 +31,17 @@ def inject_message(image: np.ndarray, message: np.ndarray, random=False, seed=42
         np.random.shuffle(order)
 
     # set each LSB to message bit
-    stego_object[order] = (stego_object[order] & ~1) | message_bits
+    stego_obj[order] = (stego_obj[order] & ~1) | message_bits
 
-    stego_object = stego_object.reshape(original_shape)
-    return stego_object
+    stego_obj = stego_obj.reshape(original_shape)
+    return stego_obj
 
 
-def extract_message(object: np.ndarray) -> str:
-    if len(object.shape) != 3:
-        raise ValueError("unsupported object format")
-
-    object = object.flatten()
+def extract_message(obj: np.ndarray) -> str:
+    obj = obj.flatten()
 
     # pack LSB to array
-    lsb_array = np.array([bit & 1 for bit in object])
+    lsb_array = np.array([bit & 1 for bit in obj])
 
     # get message length
     message_length = np.packbits(lsb_array[:8])[0]
@@ -68,20 +64,20 @@ def extract_message(object: np.ndarray) -> str:
     return message
 
 
-def get_capacity(object: np.ndarray):
-    object_size = object.shape
+def get_capacity(obj: np.ndarray):
+    object_size = obj.shape
     lsb_count = np.product(object_size)
     byte_count = lsb_count / 8
     return byte_count
 
 
-def is_valid(object: np.ndarray):
-    capacity = get_capacity(object)
+def is_valid(obj: np.ndarray):
+    capacity = get_capacity(obj)
     return capacity > 2
 
 
-def get_message_capacity(object: np.ndarray):
-    capacity = get_capacity(object)
+def get_message_capacity(obj: np.ndarray):
+    capacity = get_capacity(obj)
 
     # subtracting by 2 since 2 first bytes are used for stego-meta
     capacity -= 2
