@@ -21,11 +21,7 @@ def rc4_prga(perm: np.array, length: int) -> dict:
         perm[i], perm[j] = perm[j], perm[i]
         t = (perm[i] + perm[j]) % 256
         res.append(perm[t])
-    return {
-        "latest-i": i,
-        "latest-j": j,
-        "keystream": np.array(res)
-    }
+    return {"latest-i": i, "latest-j": j, "keystream": np.array(res)}
 
 
 def crypt(messageStr: str, keyStr: str) -> dict:
@@ -43,10 +39,5 @@ def crypt(messageStr: str, keyStr: str) -> dict:
     res = []
     for i in range(len(message)):
         res.append(message[i] ^ keystream_obj["keystream"][i])
-    
-    return {
-        "keystream": keystream_obj,
-        "perm": perm,
-        "result": ''.join(map(chr, res))
-    }
 
+    return {"keystream": keystream_obj, "perm": perm, "result": "".join(map(chr, res))}

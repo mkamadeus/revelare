@@ -20,7 +20,7 @@ from PyQt5.QtWidgets import (
     QLabel,
     QSizePolicy,
 )
-from cryptography import crypt
+from revelare.cyptography import crypt
 
 
 class AppWindow(QMainWindow):
@@ -307,6 +307,7 @@ def connect_cryptography(window: AppWindow):
 
 
 # ----- STATE UPDATE FUNCTIONS ----- #
+
 
 def __crypto_refresh(window: AppWindow):
     newKey = window.rc4KeyLineEdit.text()
