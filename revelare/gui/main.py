@@ -20,6 +20,7 @@ from PyQt5.QtWidgets import (
     QLabel,
     QSizePolicy,
 )
+from cryptography import crypt
 
 
 class AppWindow(QMainWindow):
@@ -28,8 +29,8 @@ class AppWindow(QMainWindow):
 
         self.setObjectName("MainWindow")
         self.setEnabled(True)
-        self.resize(800, 600)
-        self.setMinimumSize(800, 600)
+        self.resize(1500, 600)
+        self.setMinimumSize(1500, 600)
 
         font = QFont()
         font.setFamily("Segoe UI")
@@ -46,6 +47,85 @@ class AppWindow(QMainWindow):
         self.mainWidget.addTab(self.tab2, "Stefanosaurus")
 
         # ==== RC4 TAB ====
+        self.horizontalLayout1 = QHBoxLayout(self.tab1)
+
+        # -- Left Column
+        self.permutationLayoutWidget = QWidget(self.mainWidget)
+        self.permutationObjLayout = QVBoxLayout(self.permutationLayoutWidget)
+        self.permutationObjLayout.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout1.addWidget(self.permutationLayoutWidget)
+
+        # Column Title
+        self.permutationLayoutTitle = QLabel(self.permutationLayoutWidget)
+        self.permutationLayoutTitle.setText(
+            '<html><head/><body><p align="center">'
+            '<span style=" font-size:12pt; font-weight:600;">Permutation Table</span>'
+            "</p></body></html>"
+        )
+        self.permutationObjLayout.addWidget(self.permutationLayoutTitle)
+
+        # Column Content
+        self.permutationHeaderWidget = QWidget(self.mainWidget)
+        self.permutationHeaderLayout = QHBoxLayout(self.permutationHeaderWidget)
+        self.permutationHeaderLayout.setContentsMargins(0, 0, 0, 0)
+        self.permutationObjLayout.addWidget(self.permutationHeaderWidget)
+        self.rc4KeyLabel = QLabel(self.permutationLayoutWidget)
+        self.rc4KeyLabel.setText("KeyStream Generator")
+        self.permutationHeaderLayout.addWidget(self.rc4KeyLabel)
+        self.rc4KeyLineEdit = QLineEdit(self.permutationLayoutWidget)
+        self.permutationHeaderLayout.addWidget(self.rc4KeyLineEdit)
+
+        self.permutationRowWidget = [QWidget(self.mainWidget) for i in range(16)]
+        self.permutationRowLayout = [QHBoxLayout(self.permutationRowWidget[i]) for i in range(16)]
+
+        self.permutationLabel = [QLabel(self.permutationLayoutWidget) for i in range(256)]
+        self.permutationLineEdit = [QLineEdit(self.permutationLayoutWidget) for i in range(256)]
+        for i in range(16):
+            self.permutationRowLayout[i].setContentsMargins(0, 0, 0, 0)
+            self.permutationObjLayout.addWidget(self.permutationRowWidget[i])
+            for j in range(16):
+                self.permutationLabel[16 * i + j].setText(str(16 * i + j))
+                self.permutationLabel[16 * i + j].setFixedSize(20, 16)
+                self.permutationRowLayout[i].addWidget(self.permutationLabel[16 * i + j])
+                self.permutationLineEdit[16 * i + j].setText(str(16 * i + j))
+                self.permutationLineEdit[16 * i + j].setFixedSize(30, 16)
+                self.permutationLineEdit[16 * i + j].setReadOnly(True)
+                self.permutationRowLayout[i].addWidget(self.permutationLineEdit[16 * i + j])
+
+        # -- Right Column
+        self.cryptoLayoutWidget = QWidget(self.mainWidget)
+        self.cryptoObjLayout = QVBoxLayout(self.cryptoLayoutWidget)
+        self.cryptoObjLayout.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout1.addWidget(self.cryptoLayoutWidget)
+
+        # Message Header
+        self.MessageLayoutTitle = QLabel(self.cryptoLayoutWidget)
+        self.MessageLayoutTitle.setText("Teks")
+        self.cryptoObjLayout.addWidget(self.MessageLayoutTitle)
+
+        # Message TextArea
+        self.MessageField = QTextEdit(self.cryptoLayoutWidget)
+        self.cryptoObjLayout.addWidget(self.MessageField)
+
+        # Keystream Header
+        self.KeystreamLayoutTitle = QLabel(self.cryptoLayoutWidget)
+        self.KeystreamLayoutTitle.setText("Keystream")
+        self.cryptoObjLayout.addWidget(self.KeystreamLayoutTitle)
+
+        # Keystream TextArea
+        self.KeystreamField = QTextEdit(self.cryptoLayoutWidget)
+        self.KeystreamField.setReadOnly(True)
+        self.cryptoObjLayout.addWidget(self.KeystreamField)
+
+        # Result Header
+        self.ResultLayoutTitle = QLabel(self.cryptoLayoutWidget)
+        self.ResultLayoutTitle.setText("Result")
+        self.cryptoObjLayout.addWidget(self.ResultLayoutTitle)
+
+        # Result TextArea
+        self.ResultField = QTextEdit(self.cryptoLayoutWidget)
+        self.ResultField.setReadOnly(True)
+        self.cryptoObjLayout.addWidget(self.ResultField)
 
         # ==== Stego TAB ====
         self.horizontalLayout = QHBoxLayout(self.tab2)
@@ -221,11 +301,33 @@ def show_save_file_dialog(options: str = "All Files (*)") -> str:
     return fileName
 
 
+def connect_cryptography(window: AppWindow):
+    window.rc4KeyLineEdit.textChanged.connect(lambda: __crypto_refresh(window))
+    window.MessageField.textChanged.connect(lambda: __crypto_refresh(window))
+
+
+# ----- STATE UPDATE FUNCTIONS ----- #
+
+def __crypto_refresh(window: AppWindow):
+    newKey = window.rc4KeyLineEdit.text()
+    newMessage = window.MessageField.toPlainText()
+    result = crypt(newMessage, newKey)
+    for i in range(256):
+        window.permutationLineEdit[i].setText(str(result["perm"][i]))
+        window.permutationLineEdit[i].setStyleSheet("border: 1px solid black")
+    window.permutationLineEdit[result["keystream_obj"]["latest-i"]].setStyleSheet("border: 3px solid green;")
+    window.permutationLineEdit[result["keystream_obj"]["latest-j"]].setStyleSheet("border: 3px solid blue;")
+    window.permutationLineEdit[result["keystream_obj"]["latest-t"]].setStyleSheet("border: 3px solid red;")
+    window.KeystreamField.setText(result["keystream"])
+    window.ResultField.setText(result["result"])
+
+
 def window():
     import sys
 
     app = QApplication(sys.argv)
     win = AppWindow()
+    connect_cryptography(win)
     win.show()
     sys.exit(app.exec_())
 
