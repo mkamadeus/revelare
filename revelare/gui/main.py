@@ -20,7 +20,7 @@ from PyQt5.QtWidgets import (
     QLabel,
     QSizePolicy,
 )
-from cryptography import crypt
+from revelare.cryptography import crypt
 
 
 class AppWindow(QMainWindow):
