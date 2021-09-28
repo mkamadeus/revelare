@@ -11,7 +11,7 @@ sample_image = np.array(
         [[255, 255, 255], [255, 255, 255], [255, 255, 255]],
     ]
 )
-sample_message = ""
+sample_message = np.array([], dtype=np.uint8)
 sample_target = np.array(
     [
         [[254, 254, 254], [254, 254, 254], [254, 254, 254]],

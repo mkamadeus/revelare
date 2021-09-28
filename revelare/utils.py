@@ -22,3 +22,8 @@ def load_wav(path):
 
 def write_wav(audio_bytes, sample_rate, path):
     wavfile.write(path, sample_rate, audio_bytes)
+
+
+def load_as_bytes(path):
+    file_bytes = open(path, "rb")
+    return np.array(file_bytes)

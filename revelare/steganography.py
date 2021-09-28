@@ -1,9 +1,7 @@
 import numpy as np
 
 
-def inject_message(
-    image: np.ndarray, message: str, random=False, seed=42
-) -> np.ndarray:
+def inject_message(image: np.ndarray, message: np.ndarray, random=False, seed=42) -> np.ndarray:
     if len(image.shape) != 3:
         raise ValueError("unsupported image format")
 
@@ -11,7 +9,7 @@ def inject_message(
     stego_image = image.flatten()
 
     # get bits from message
-    message_bits = np.unpackbits(np.array(list(map(ord, message)), dtype=np.uint8))
+    message_bits = np.unpackbits(message)
 
     # get bits from message length
     length_bits = np.unpackbits(np.array([len(message)], dtype=np.uint8))
@@ -56,7 +54,7 @@ def extract_message(image: np.ndarray) -> str:
     seed = np.packbits(lsb_array[8:16])[0]
 
     # detect if random
-    random = False if seed == 0 else True
+    random = seed != 0
 
     # get order
     order = np.arange(start=2 * 8, stop=(2 + message_length) * 8)
@@ -66,6 +64,5 @@ def extract_message(image: np.ndarray) -> str:
 
     message_bits = lsb_array[order]
     message = np.packbits(message_bits.reshape((len(message_bits) // 8, 8)))
-    message = message.tobytes().decode("utf-8")
 
     return message
