@@ -297,8 +297,8 @@ def show_open_file_dialog(options: str = "All Files (*)") -> str:
     return fileName
 
 
-def show_save_file_dialog(options: str = "All Files (*)") -> str:
-    fileName, _ = QFileDialog.getSaveFileName(None, "", "", options)
+def show_save_file_dialog(options: str = "All Files (*)", initial_file_name: str = "") -> str:
+    fileName, _ = QFileDialog.getSaveFileName(None, "", initial_file_name, options)
     return fileName
 
 

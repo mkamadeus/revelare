@@ -1,7 +1,8 @@
+import re
 from PIL import Image, ImageQt
 from PyQt5.QtGui import QPixmap
 from revelare.utils import load_img, load_wav, write_img, write_wav
-from revelare.steganography import extract_message, inject_message, is_valid
+from revelare.steganography import extract_message, inject_message
 import numpy as np
 from revelare.gui.main import AppWindow, show_error_box, show_open_file_dialog, show_save_file_dialog
 
@@ -130,6 +131,7 @@ def __save_stego_obj(window: AppWindow, state: StegoAppState):
 def __run_embed(window: AppWindow, state: StegoAppState):
     message = state.embed_msg_data
     data = state.cover_obj_data
+    filename = state.embed_msg_filename
     seed = window.get_seed()
     random = window.get_embed_mode() == 1
 
@@ -137,11 +139,11 @@ def __run_embed(window: AppWindow, state: StegoAppState):
         show_error_box("Execution Failure", "Invalid Input")
         return
 
-    if not is_valid(data):
-        show_error_box("Execution Failure", "Cover object invalid")
+    try:
+        state.stego_obj_data = inject_message(data, message, filename, random=random, seed=seed)
+    except Exception:
+        show_error_box("Execution Failure")
         return
-
-    state.stego_obj_data = inject_message(data, message, random=random, seed=seed)
 
     image = Image.fromarray(state.stego_obj_data, "RGB")
     qim = ImageQt.ImageQt(image)
@@ -159,10 +161,19 @@ def __run_extract(window: AppWindow, state: StegoAppState):
         show_error_box("Execution Failure", "No stego object to extract from")
         return
 
-    print(extract_message(data))
-    print(extract_message(data).view(np.uint))
+    try:
+        filename, output = extract_message(data)
+        output = bytes(output.view(np.uint).tolist())
+    except Exception:
+        show_error_box("Execution Failure")
+        return
 
-    filename = show_save_file_dialog("All Files (*)")
+    try:
+        extension = re.findall(r"(?<=\.)\w+$", filename)[0]
+        filename = show_save_file_dialog(f"Original File Type (.{extension});;All Files (*)", filename)
+    except Exception:
+        filename = show_save_file_dialog("All Files (*)", filename)
+
     if len(filename) == 0:
         return
 
@@ -172,7 +183,7 @@ def __run_extract(window: AppWindow, state: StegoAppState):
         show_error_box("Cannot read file")
 
     with f:
-        f.write(bytes(extract_message(data).view(np.uint).tolist()))
+        f.write()
 
 
 # ----- UTILS ----- #
