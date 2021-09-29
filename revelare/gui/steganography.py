@@ -1,3 +1,5 @@
+from PIL import Image, ImageQt
+from PyQt5.QtGui import QPixmap
 from revelare.utils import load_img, load_wav, write_img, write_wav
 from revelare.steganography import extract_message, inject_message, is_valid
 import numpy as np
@@ -11,9 +13,9 @@ class StegoAppState:
     cover_obj_filename: str
     stego_obj_filename: str
     embed_msg_filename: str
-    cover_obj_data: np.ndarray
-    stego_obj_data: np.ndarray
-    embed_msg_data: np.ndarray
+    cover_obj_data: np.ndarray = None
+    stego_obj_data: np.ndarray = None
+    embed_msg_data: np.ndarray = None
     working_file_type: int = -1
 
     audio_sample_rate: int
@@ -38,6 +40,14 @@ def __load_cover_obj(window: AppWindow, state: StegoAppState):
     if filetype == IMAGE_FILE_TYPE:
         state.cover_obj_data = load_img(filename)
         state.working_file_type = IMAGE_FILE_TYPE
+
+        image = Image.fromarray(state.cover_obj_data, "RGB")
+        qim = ImageQt.ImageQt(image)
+        pixmap = QPixmap.fromImage(qim)
+        window.coverimg = qim
+        window.coverObjectImage.setPixmap(pixmap)
+        window.coverObjectImage.setScaledContents(True)
+        window.coverObjectImage.setFixedWidth(pixmap.width() / pixmap.height() * 250)
     elif filetype == AUDIO_FILE_TYPE:
         state.audio_sample_rate, state.cover_obj_data = load_wav(filename)
         state.working_file_type = AUDIO_FILE_TYPE
@@ -65,9 +75,6 @@ def __load_embed_msg(window: AppWindow, state: StegoAppState):
     with f:
         state.embed_msg_data = np.array(list(f.read())).view(np.uint8)
 
-    print(state.embed_msg_data)
-    print(state.embed_msg_data.view(np.uint))
-
     state.embed_msg_filename = filename
     window.embeddedMsgField.setText(filename)
 
@@ -83,6 +90,14 @@ def __load_stego_obj(window: AppWindow, state: StegoAppState):
     if filetype == IMAGE_FILE_TYPE:
         state.stego_obj_data = load_img(filename)
         state.working_file_type = IMAGE_FILE_TYPE
+
+        image = Image.fromarray(state.stego_obj_data, "RGB")
+        qim = ImageQt.ImageQt(image)
+        pixmap = QPixmap.fromImage(qim)
+        window.stegoimg = qim
+        window.stegoObjectImage.setPixmap(pixmap)
+        window.stegoObjectImage.setScaledContents(True)
+        window.stegoObjectImage.setFixedWidth(pixmap.width() / pixmap.height() * 250)
     elif filetype == AUDIO_FILE_TYPE:
         state.audio_sample_rate, state.stego_obj_data = load_wav(filename)
         state.working_file_type = AUDIO_FILE_TYPE
@@ -118,8 +133,8 @@ def __run_embed(window: AppWindow, state: StegoAppState):
     seed = window.get_seed()
     random = window.get_embed_mode() == 1
 
-    if data is None:
-        show_error_box("Execution Failure", "No cover object to embed to")
+    if data is None or message is None:
+        show_error_box("Execution Failure", "Invalid Input")
         return
 
     if not is_valid(data):
@@ -127,6 +142,14 @@ def __run_embed(window: AppWindow, state: StegoAppState):
         return
 
     state.stego_obj_data = inject_message(data, message, random=random, seed=seed)
+
+    image = Image.fromarray(state.stego_obj_data, "RGB")
+    qim = ImageQt.ImageQt(image)
+    pixmap = QPixmap.fromImage(qim)
+    window.stegoimg = qim
+    window.stegoObjectImage.setPixmap(pixmap)
+    window.stegoObjectImage.setScaledContents(True)
+    window.stegoObjectImage.setFixedWidth(pixmap.width() / pixmap.height() * 250)
 
 
 def __run_extract(window: AppWindow, state: StegoAppState):
