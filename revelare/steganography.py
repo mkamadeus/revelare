@@ -1,8 +1,9 @@
+from typing import Tuple
 import numpy as np
 from icecream import ic
 
 
-def inject_message(obj: np.ndarray, message: np.ndarray, random=False, seed=42) -> np.ndarray:
+def inject_message(obj: np.ndarray, message: np.ndarray, filename: str, random=False, seed=42) -> np.ndarray:
     original_shape = obj.shape
     stego_obj = obj.flatten()
 
@@ -14,6 +15,10 @@ def inject_message(obj: np.ndarray, message: np.ndarray, random=False, seed=42) 
     # get bits from message length
     length_bits = np.unpackbits(np.array([len(message)], dtype=np.uint32).view(np.uint8))
 
+    # get bits from filename
+    filename += "$"
+    filename_bits = np.unpackbits(np.array(list(map(ord, filename)), dtype=np.uint8))
+
     # if not random, set seed to zero
     if not random:
         seed = 0
@@ -24,12 +29,10 @@ def inject_message(obj: np.ndarray, message: np.ndarray, random=False, seed=42) 
     # append info together
     stego_obj[:32] = (stego_obj[:32] & ~1) | length_bits
     stego_obj[32:40] = (stego_obj[8:16] & ~1) | seed_bits
-
-    ic(stego_obj[:32])
-    ic(stego_obj[32:40])
+    stego_obj[40 : 40 + len(filename_bits)] = (stego_obj[40 : 40 + len(filename_bits)] & ~1) | filename_bits
 
     # LSB change order
-    order = np.arange(start=5 * 8, stop=(5 + len(message)) * 8)
+    order = np.arange(start=40 + len(filename_bits), stop=40 + len(filename_bits) + 8 * len(message))
     if random:
         np.random.seed(seed)
         np.random.shuffle(order)
@@ -42,7 +45,7 @@ def inject_message(obj: np.ndarray, message: np.ndarray, random=False, seed=42) 
     return stego_obj
 
 
-def extract_message(obj: np.ndarray) -> np.ndarray:
+def extract_message(obj: np.ndarray) -> Tuple[str, np.ndarray]:
     obj = obj.flatten()
 
     # pack LSB to array
@@ -56,23 +59,30 @@ def extract_message(obj: np.ndarray) -> np.ndarray:
     # get seed
     seed = np.packbits(lsb_array[32:40])[0]
 
-    ic(message_length)
-    ic(seed)
+    # get filename
+    filename = ""
+    pos = 40
+    cc = chr(np.packbits(lsb_array[pos : pos + 8])[0])
+    while cc != "$":
+        filename += cc
+        pos += 8
+        cc = chr(np.packbits(lsb_array[pos : pos + 8])[0])
+
+    pos += 8
 
     # detect if random
     random = seed != 0
 
     # get order
-    order = np.arange(start=5 * 8, stop=(5 + message_length) * 8)
+    order = np.arange(start=pos, stop=pos + 8 * message_length)
     if random:
         np.random.seed(seed)
         np.random.shuffle(order)
-    ic(order)
 
     message_bits = lsb_array[order]
     message = np.packbits(message_bits.reshape((len(message_bits) // 8, 8)))
 
-    return message
+    return filename, message
 
 
 def get_capacity(obj: np.ndarray):
