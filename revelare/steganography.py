@@ -3,17 +3,24 @@ import numpy as np
 from icecream import ic
 
 
-def inject_message(obj: np.ndarray, message: np.ndarray, filename: str, random=False, seed=42) -> np.ndarray:
+def inject_message(
+    obj: np.ndarray, message: np.ndarray, filename: str, random=False, seed=42
+) -> np.ndarray:
+    # check object validity
+    capacity = obj.size // 8
+    if capacity < 5 + len(filename) + 1 + len(message):
+        raise ValueError("object size too small")
+
     original_shape = obj.shape
     stego_obj = obj.flatten()
 
     # get bits from message
     message_bits = np.unpackbits(message)
 
-    ic(len(message))
-
     # get bits from message length
-    length_bits = np.unpackbits(np.array([len(message)], dtype=np.uint32).view(np.uint8))
+    length_bits = np.unpackbits(
+        np.array([len(message)], dtype=np.uint32).view(np.uint8)
+    )
 
     # get bits from filename
     filename += "$"
@@ -29,10 +36,14 @@ def inject_message(obj: np.ndarray, message: np.ndarray, filename: str, random=F
     # append info together
     stego_obj[:32] = (stego_obj[:32] & ~1) | length_bits
     stego_obj[32:40] = (stego_obj[8:16] & ~1) | seed_bits
-    stego_obj[40 : 40 + len(filename_bits)] = (stego_obj[40 : 40 + len(filename_bits)] & ~1) | filename_bits
+    stego_obj[40 : 40 + len(filename_bits)] = (
+        stego_obj[40 : 40 + len(filename_bits)] & ~1
+    ) | filename_bits
 
     # LSB change order
-    order = np.arange(start=40 + len(filename_bits), stop=40 + len(filename_bits) + 8 * len(message))
+    order = np.arange(
+        start=40 + len(filename_bits), stop=40 + len(filename_bits) + 8 * len(message)
+    )
     if random:
         np.random.seed(seed)
         np.random.shuffle(order)
@@ -53,7 +64,8 @@ def extract_message(obj: np.ndarray) -> Tuple[str, np.ndarray]:
 
     # get message length
     message_length = np.sum(
-        np.packbits(lsb_array[:32].reshape((-1, 4, 8))[:, ::-1]) * np.array([1 << 24, 1 << 16, 1 << 8, 1 << 0])
+        np.packbits(lsb_array[:32].reshape((-1, 4, 8))[:, ::-1])
+        * np.array([1 << 24, 1 << 16, 1 << 8, 1 << 0])
     )
 
     # get seed
@@ -83,23 +95,3 @@ def extract_message(obj: np.ndarray) -> Tuple[str, np.ndarray]:
     message = np.packbits(message_bits.reshape((len(message_bits) // 8, 8)))
 
     return filename, message
-
-
-def get_capacity(obj: np.ndarray):
-    object_size = obj.shape
-    lsb_count = np.product(object_size)
-    byte_count = lsb_count // 8
-    return byte_count
-
-
-def is_valid(obj: np.ndarray):
-    capacity = get_capacity(obj)
-    return capacity > 5
-
-
-def get_message_capacity(obj: np.ndarray):
-    capacity = get_capacity(obj)
-
-    # subtracting by 5 since 5 first bytes are used for stego-meta
-    capacity -= 5
-    return capacity

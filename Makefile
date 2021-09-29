@@ -3,10 +3,10 @@ test:
 .PHONY: test
 
 format:
-	black ./**/*.py --exclude env/
+	black ./**/*.py --exclude env/ --exclude venv/
 .PHONY: format
 
 lint:
 	flake8 .
-	black ./**/*.py --check --exclude env/
+	black ./**/*.py --check --exclude env/ --exclude venv/
 .PHONY: lint

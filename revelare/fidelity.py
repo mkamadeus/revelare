@@ -9,4 +9,4 @@ def rmse(image_1: np.ndarray, image_2: np.ndarray):
 
 
 def psnr(image_1: np.ndarray, image_2: np.ndarray):
-    return 20 * np.log(255 / rmse(image_1, image_2), 10)
+    return 20 * np.log10(255 / rmse(image_1, image_2))
