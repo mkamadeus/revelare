@@ -28,8 +28,7 @@ class AppWindow(QMainWindow):
 
         self.setObjectName("MainWindow")
         self.setEnabled(True)
-        self.resize(1500, 600)
-        self.setMinimumSize(1500, 600)
+        self.setFixedSize(1500, 600)
 
         font = QFont()
         font.setFamily("Segoe UI")
@@ -152,6 +151,10 @@ class AppWindow(QMainWindow):
         self.coverObjectFrame.setMinimumHeight(250)
         self.coverObjLayout.addWidget(self.coverObjectFrame)
 
+        # Cover Object Image
+        self.coverObjectImage = QLabel("", self.coverObjectFrame)
+        self.coverObjectImage.setFixedSize(682, 250)
+
         # Form
         self.coverFormWidget = QWidget(self.coverLayoutWidget)
         self.coverFormLayout = QFormLayout(self.coverFormWidget)
@@ -239,6 +242,10 @@ class AppWindow(QMainWindow):
         self.stegoObjectFrame.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
         self.stegoObjectFrame.setMinimumHeight(250)
         self.stegoObjLayout.addWidget(self.stegoObjectFrame)
+
+        # Stego Object Image
+        self.stegoObjectImage = QLabel("", self.stegoObjectFrame)
+        self.stegoObjectImage.setFixedSize(682, 250)
 
         # Form
         self.stegoFormWidget = QWidget(self.stegoLayoutWidget)
