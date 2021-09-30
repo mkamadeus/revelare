@@ -204,7 +204,7 @@ def __run_extract(window: AppWindow, state: StegoAppState):
         show_error_box("Cannot read file")
 
     with f:
-        f.write()
+        f.write(output)
 
 
 # ----- UTILS ----- #
