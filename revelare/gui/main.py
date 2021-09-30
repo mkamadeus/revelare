@@ -19,6 +19,7 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
     QLabel,
     QSizePolicy,
+    QRadioButton,
 )
 
 
@@ -109,8 +110,14 @@ class AppWindow(QMainWindow):
         self.messageLoadBtn = QPushButton("Load File", self.messageRowWidget)
         self.messageRowLayout.addWidget(self.messageLoadBtn)
 
+        self.textRadioBtn = QRadioButton("as Text")
+        self.textRadioBtn.setChecked(True)
+        self.messageRowLayout.addWidget(self.textRadioBtn)
+
+        self.byteRadioBtn = QRadioButton("as Bytes")
+        self.messageRowLayout.addWidget(self.byteRadioBtn)
+
         # Message TextArea
-        self.messageText = ""
         self.MessageField = QTextEdit(self.cryptoLayoutWidget)
         self.cryptoObjLayout.addWidget(self.MessageField)
 
@@ -120,7 +127,6 @@ class AppWindow(QMainWindow):
         self.cryptoObjLayout.addWidget(self.KeystreamLayoutTitle)
 
         # Keystream TextArea
-        self.keystreamText = ""
         self.KeystreamField = QTextEdit(self.cryptoLayoutWidget)
         self.KeystreamField.setReadOnly(True)
         self.cryptoObjLayout.addWidget(self.KeystreamField)
@@ -140,6 +146,7 @@ class AppWindow(QMainWindow):
 
         # Result TextArea
         self.resultText = ""
+        self.resultBytes = []
         self.ResultField = QTextEdit(self.cryptoLayoutWidget)
         self.ResultField.setReadOnly(True)
         self.cryptoObjLayout.addWidget(self.ResultField)
