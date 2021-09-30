@@ -97,11 +97,20 @@ class AppWindow(QMainWindow):
         self.horizontalLayout1.addWidget(self.cryptoLayoutWidget)
 
         # Message Header
+        self.messageRowWidget = QWidget(self.mainWidget)
+        self.messageRowLayout = QHBoxLayout(self.messageRowWidget)
+        self.messageRowLayout.setContentsMargins(0, 0, 0, 0)
+        self.cryptoObjLayout.addWidget(self.messageRowWidget)
+
         self.MessageLayoutTitle = QLabel(self.cryptoLayoutWidget)
         self.MessageLayoutTitle.setText("Teks")
-        self.cryptoObjLayout.addWidget(self.MessageLayoutTitle)
+        self.messageRowLayout.addWidget(self.MessageLayoutTitle)
+        
+        self.messageLoadBtn = QPushButton("Load File", self.messageRowWidget)
+        self.messageRowLayout.addWidget(self.messageLoadBtn)
 
         # Message TextArea
+        self.messageText = ""
         self.MessageField = QTextEdit(self.cryptoLayoutWidget)
         self.cryptoObjLayout.addWidget(self.MessageField)
 
@@ -111,16 +120,26 @@ class AppWindow(QMainWindow):
         self.cryptoObjLayout.addWidget(self.KeystreamLayoutTitle)
 
         # Keystream TextArea
+        self.keystreamText = ""
         self.KeystreamField = QTextEdit(self.cryptoLayoutWidget)
         self.KeystreamField.setReadOnly(True)
         self.cryptoObjLayout.addWidget(self.KeystreamField)
 
         # Result Header
-        self.ResultLayoutTitle = QLabel(self.cryptoLayoutWidget)
-        self.ResultLayoutTitle.setText("Result")
-        self.cryptoObjLayout.addWidget(self.ResultLayoutTitle)
+        self.resultRowWidget = QWidget(self.mainWidget)
+        self.resultRowLayout = QHBoxLayout(self.resultRowWidget)
+        self.resultRowLayout.setContentsMargins(0, 0, 0, 0)
+        self.cryptoObjLayout.addWidget(self.resultRowWidget)
+
+        self.resultLayoutTitle = QLabel(self.cryptoLayoutWidget)
+        self.resultLayoutTitle.setText("Result")
+        self.resultRowLayout.addWidget(self.resultLayoutTitle)
+        
+        self.resultSaveBtn = QPushButton("Save File", self.resultRowWidget)
+        self.resultRowLayout.addWidget(self.resultSaveBtn)
 
         # Result TextArea
+        self.resultText = ""
         self.ResultField = QTextEdit(self.cryptoLayoutWidget)
         self.ResultField.setReadOnly(True)
         self.cryptoObjLayout.addWidget(self.ResultField)

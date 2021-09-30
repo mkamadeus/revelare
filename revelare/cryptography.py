@@ -29,7 +29,16 @@ def crypt(messageStr: str, keyStr: str) -> dict:
     # Convert to np array
     message = np.array(list(map(ord, messageStr)), dtype=np.uint8)
     key = np.array(list(map(ord, keyStr)), dtype=np.uint8)
+    
+    # Pad the array to be divisible by 8
+    # lenpad = (-len(messageStr) % 8)
+    # if(lenpad > 0):
+    #     message = np.append(message, [0 for i in range(lenpad)])
+    # print(message)
+    return crypt_byte(message, key)
 
+
+def crypt_byte(message: np.array, key: np.array) -> dict:
     # Initiate permutation
     perm = np.array([i for i in range(256)])
     rc4_ksa(perm, key)
@@ -46,4 +55,5 @@ def crypt(messageStr: str, keyStr: str) -> dict:
         "keystream": "".join(map(chr, keystream_obj["keystream"])),
         "perm": perm,
         "result": "".join(map(chr, res)),
+        "result_byte": np.array(res)
     }
