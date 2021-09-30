@@ -106,7 +106,7 @@ class AppWindow(QMainWindow):
         self.MessageLayoutTitle = QLabel(self.cryptoLayoutWidget)
         self.MessageLayoutTitle.setText("Teks")
         self.messageRowLayout.addWidget(self.MessageLayoutTitle)
-        
+
         self.messageLoadBtn = QPushButton("Load File", self.messageRowWidget)
         self.messageRowLayout.addWidget(self.messageLoadBtn)
 
@@ -140,7 +140,7 @@ class AppWindow(QMainWindow):
         self.resultLayoutTitle = QLabel(self.cryptoLayoutWidget)
         self.resultLayoutTitle.setText("Result")
         self.resultRowLayout.addWidget(self.resultLayoutTitle)
-        
+
         self.resultSaveBtn = QPushButton("Save File", self.resultRowWidget)
         self.resultRowLayout.addWidget(self.resultSaveBtn)
 
@@ -228,6 +228,12 @@ class AppWindow(QMainWindow):
         self.stegoEncryptField = QCheckBox("Encrypt", self.settingWidget)
         self.settingLayout.addWidget(self.stegoEncryptField)
 
+        # Random Seed
+        self.encryptKeyLabel = QLabel("Encryption Key", self.settingWidget)
+        self.settingLayout.addWidget(self.encryptKeyLabel)
+        self.encryptKeyField = QLineEdit("The meaning of life, the universe, and everything", self.settingWidget)
+        self.settingLayout.addWidget(self.encryptKeyField)
+
         # Sequential / Random
         self.embedModeLabel = QLabel("Mode", self.settingWidget)
         self.settingLayout.addWidget(self.embedModeLabel)
@@ -306,6 +312,12 @@ class AppWindow(QMainWindow):
 
     def get_embed_mode(self):
         return self.embedModeField.currentIndex()
+
+    def get_encrypt(self) -> bool:
+        return self.stegoEncryptField.isChecked()
+
+    def get_key(self):
+        return self.encryptKeyField.text()
 
 
 def show_error_box(message: str, description: str = None):

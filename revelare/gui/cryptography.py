@@ -17,10 +17,11 @@ def connect_cryptography(window: AppWindow, state: CryptoAppState):
 
 # ----- STATE UPDATE FUNCTIONS ----- #
 
+
 def __crypto_refresh(window: AppWindow, state: CryptoAppState):
     # Update state
     state.text_bytes = str_to_ndarray(window.MessageField.toPlainText())
-    
+
     # Encrypt/Decrypt
     result = crypt_byte(state.text_bytes, str_to_ndarray(window.rc4KeyLineEdit.text()))
 
@@ -31,21 +32,21 @@ def __crypto_refresh(window: AppWindow, state: CryptoAppState):
     window.permutationLineEdit[result["keystream_obj"]["latest-i"]].setStyleSheet("border: 3px solid green;")
     window.permutationLineEdit[result["keystream_obj"]["latest-j"]].setStyleSheet("border: 3px solid blue;")
     window.permutationLineEdit[result["keystream_obj"]["latest-t"]].setStyleSheet("border: 3px solid red;")
-    
+
     # Update keystream and result
     window.KeystreamField.setText(result["keystream"])
     window.ResultField.setText(result["result"])
-    
+
     # Update state
     state.result_bytes = result["result_byte"]
 
 
 def __load_file(window: AppWindow, state: CryptoAppState):
     filename = show_open_file_dialog()
-    if(len(filename) == 0):
+    if len(filename) == 0:
         return
-    if(window.textRadioBtn.isChecked()):
-        with open(filename, "r", encoding="utf-8", errors='replace') as file:
+    if window.textRadioBtn.isChecked():
+        with open(filename, "r", encoding="utf-8", errors="replace") as file:
             isi = file.read()
             # print(isi)
             window.MessageField.setText(isi)
@@ -53,16 +54,16 @@ def __load_file(window: AppWindow, state: CryptoAppState):
     else:
         with open(filename, "rb") as file:
             isi = file.read()
-            window.MessageField.setText(''.join(map(chr, isi)))
+            window.MessageField.setText("".join(map(chr, isi)))
             file.close()
 
 
 def __save_file(window: AppWindow, state: CryptoAppState):
     filename = show_save_file_dialog()
-    if(len(filename) == 0):
+    if len(filename) == 0:
         return
-    if(window.textRadioBtn.isChecked()):
-        with open(filename, "w", encoding="utf-8", errors='replace') as file:
+    if window.textRadioBtn.isChecked():
+        with open(filename, "w", encoding="utf-8", errors="replace") as file:
             file.write(window.ResultField.toPlainText())
             file.close()
     else:

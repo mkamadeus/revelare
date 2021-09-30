@@ -1,6 +1,7 @@
 import re
 from PIL import Image, ImageQt
 from PyQt5.QtGui import QPixmap
+from revelare.cryptography import crypt_byte, str_to_ndarray
 from revelare.utils import load_img, load_wav, write_img, write_wav
 from revelare.steganography import extract_message, inject_message
 import numpy as np
@@ -82,7 +83,7 @@ def __load_embed_msg(window: AppWindow, state: StegoAppState):
         show_error_box("Cannot read file")
 
     with f:
-        state.embed_msg_data = np.array(list(f.read())).view(np.uint8)
+        state.embed_msg_data = np.frombuffer(f.read(), np.uint8)
 
     state.embed_msg_filename = filename
     window.embeddedMsgField.setText(filename)
@@ -149,15 +150,20 @@ def __run_embed(window: AppWindow, state: StegoAppState):
     filename = state.embed_msg_filename
     seed = window.get_seed()
     random = window.get_embed_mode() == 1
+    encrypt = window.get_encrypt()
+    key = window.get_key()
 
     if data is None or message is None:
         show_error_box("Execution Failure", "Invalid Input")
         return
 
     try:
+        if encrypt:
+            message = crypt_byte(message, str_to_ndarray(key))["result_byte"]
         state.stego_obj_data = inject_message(data, message, filename, random=random, seed=seed)
-    except Exception:
+    except Exception as e:
         show_error_box("Execution Failure")
+        raise e
         return
 
     if state.working_file_type == IMAGE_FILE_TYPE:
@@ -177,6 +183,8 @@ def __run_embed(window: AppWindow, state: StegoAppState):
 
 def __run_extract(window: AppWindow, state: StegoAppState):
     data = state.stego_obj_data
+    encrypt = window.get_encrypt()
+    key = window.get_key()
 
     if data is None:
         show_error_box("Execution Failure", "No stego object to extract from")
@@ -184,8 +192,12 @@ def __run_extract(window: AppWindow, state: StegoAppState):
 
     try:
         filename, output = extract_message(data)
-        output = bytes(output.view(np.uint).tolist())
-    except Exception:
+
+        output = output.tobytes()
+        if encrypt:
+            output = crypt_byte(output, str_to_ndarray(key))["result_byte"]
+    except Exception as e:
+        print(e)
         show_error_box("Execution Failure")
         return
 
