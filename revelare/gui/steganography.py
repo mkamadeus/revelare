@@ -35,13 +35,16 @@ def connect_app_to_state(window: AppWindow, state: StegoAppState):
 
 
 def __load_cover_obj(window: AppWindow, state: StegoAppState):
-    filename = show_open_file_dialog("Image Files (*.png *.bmp);;Audio Files (*.wav)")
+    filename = show_open_file_dialog(
+        "Accepted Files (*.png *.bmp *.wav);;Image Files (*.png *.bmp);;Audio Files (*.wav)"
+    )
     filetype = __check_file_type(filename)
 
     if filetype == IMAGE_FILE_TYPE:
         state.cover_obj_data = load_img(filename)
         state.working_file_type = IMAGE_FILE_TYPE
 
+        window.coverObjectImage.clear()
         image = Image.fromarray(state.cover_obj_data, "RGB")
         qim = ImageQt.ImageQt(image)
         pixmap = QPixmap.fromImage(qim)
@@ -52,6 +55,10 @@ def __load_cover_obj(window: AppWindow, state: StegoAppState):
     elif filetype == AUDIO_FILE_TYPE:
         state.audio_sample_rate, state.cover_obj_data = load_wav(filename)
         state.working_file_type = AUDIO_FILE_TYPE
+
+        window.coverObjectImage.clear()
+        window.coverObjectImage.setText("Cannot preview audio file")
+        window.coverObjectImage.setFixedSize(682, 250)
     else:
         return
 
@@ -59,6 +66,7 @@ def __load_cover_obj(window: AppWindow, state: StegoAppState):
     window.coverObjInputField.setText(filename)
 
     state.stego_obj_filename = None
+    window.stegoObjectImage.clear()
     window.stegoObjInputField.setText("No file inserted")
     state.stego_obj_data = None
 
@@ -85,13 +93,16 @@ def __load_embed_msg(window: AppWindow, state: StegoAppState):
 
 
 def __load_stego_obj(window: AppWindow, state: StegoAppState):
-    filename = show_open_file_dialog("Image Files (*.png *.bmp);;Audio Files (*.wav)")
+    filename = show_open_file_dialog(
+        "Accepted Files (*.png *.bmp *.wav);;Image Files (*.png *.bmp);;Audio Files (*.wav)"
+    )
     filetype = __check_file_type(filename)
 
     if filetype == IMAGE_FILE_TYPE:
         state.stego_obj_data = load_img(filename)
         state.working_file_type = IMAGE_FILE_TYPE
 
+        window.stegoObjectImage.clear()
         image = Image.fromarray(state.stego_obj_data, "RGB")
         qim = ImageQt.ImageQt(image)
         pixmap = QPixmap.fromImage(qim)
@@ -102,6 +113,10 @@ def __load_stego_obj(window: AppWindow, state: StegoAppState):
     elif filetype == AUDIO_FILE_TYPE:
         state.audio_sample_rate, state.stego_obj_data = load_wav(filename)
         state.working_file_type = AUDIO_FILE_TYPE
+
+        window.stegoObjectImage.clear()
+        window.stegoObjectImage.setText("Cannot preview audio file")
+        window.stegoObjectImage.setFixedSize(682, 250)
     else:
         return
 
@@ -145,13 +160,19 @@ def __run_embed(window: AppWindow, state: StegoAppState):
         show_error_box("Execution Failure")
         return
 
-    image = Image.fromarray(state.stego_obj_data, "RGB")
-    qim = ImageQt.ImageQt(image)
-    pixmap = QPixmap.fromImage(qim)
-    window.stegoimg = qim
-    window.stegoObjectImage.setPixmap(pixmap)
-    window.stegoObjectImage.setScaledContents(True)
-    window.stegoObjectImage.setFixedWidth(pixmap.width() / pixmap.height() * 250)
+    if state.working_file_type == IMAGE_FILE_TYPE:
+        window.stegoObjectImage.clear()
+        image = Image.fromarray(state.stego_obj_data, "RGB")
+        qim = ImageQt.ImageQt(image)
+        pixmap = QPixmap.fromImage(qim)
+        window.stegoimg = qim
+        window.stegoObjectImage.setPixmap(pixmap)
+        window.stegoObjectImage.setScaledContents(True)
+        window.stegoObjectImage.setFixedWidth(pixmap.width() / pixmap.height() * 250)
+    elif state.working_file_type == AUDIO_FILE_TYPE:
+        window.stegoObjectImage.clear()
+        window.stegoObjectImage.setText("Cannot preview audio file")
+        window.stegoObjectImage.setFixedSize(682, 250)
 
 
 def __run_extract(window: AppWindow, state: StegoAppState):
