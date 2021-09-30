@@ -3,16 +3,12 @@ import numpy as np
 from icecream import ic
 
 
-def after_pad(x: int):
-    return -(-x // 8) * 8
-
-
 def inject_message(
     obj: np.ndarray, message: np.ndarray, filename: str, random=False, seed=42
 ) -> np.ndarray:
     # check object validity
     capacity = obj.size // 8
-    if capacity < after_pad(5 + len(filename) + 1 + len(message)):
+    if capacity < 5 + len(filename) + 1 + len(message):
         raise ValueError("object size too small")
 
     original_shape = obj.shape

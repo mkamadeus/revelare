@@ -46,7 +46,6 @@ def crypt_byte(message: np.ndarray, key: np.ndarray) -> dict:
 
     # Generate keystream of length len(message)
     keystream_obj = rc4_prga(perm, len(message))
-
     # Pad the array to be divisible by 8
     lenpad = (-len(message) % 8)
     if(lenpad > 0):
