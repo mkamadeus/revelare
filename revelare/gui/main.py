@@ -300,6 +300,11 @@ class AppWindow(QMainWindow):
         self.stegoObjSaveBtn = QPushButton("Save File", self.stegoFormWidget)
         self.stegoFormLayout.setWidget(1, QFormLayout.LabelRole, self.stegoObjSaveBtn)
 
+        self.psnrLabel = QLabel("Fidelity", self.stegoFormWidget)
+        self.stegoFormLayout.setWidget(2, QFormLayout.LabelRole, self.psnrLabel)
+        self.psnrField = QLabel("", self.stegoFormWidget)
+        self.stegoFormLayout.setWidget(2, QFormLayout.FieldRole, self.psnrField)
+
         self.tempSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
         self.stegoObjLayout.addItem(self.tempSpacer)
 

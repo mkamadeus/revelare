@@ -2,6 +2,7 @@ import re
 from PIL import Image, ImageQt
 from PyQt5.QtGui import QPixmap
 from revelare.cryptography import crypt_byte, str_to_ndarray
+from revelare.fidelity import psnr
 from revelare.utils import load_img, load_wav, write_img, write_wav
 from revelare.steganography import extract_message, inject_message
 import numpy as np
@@ -70,6 +71,7 @@ def __load_cover_obj(window: AppWindow, state: StegoAppState):
     window.stegoObjectImage.clear()
     window.stegoObjInputField.setText("No file inserted")
     state.stego_obj_data = None
+    window.psnrField.setText("")
 
 
 def __load_embed_msg(window: AppWindow, state: StegoAppState):
@@ -89,8 +91,10 @@ def __load_embed_msg(window: AppWindow, state: StegoAppState):
     window.embeddedMsgField.setText(filename)
 
     state.stego_obj_filename = None
+    window.stegoObjectImage.clear()
     window.stegoObjInputField.setText("No file inserted")
     state.stego_obj_data = None
+    window.psnrField.setText("")
 
 
 def __load_stego_obj(window: AppWindow, state: StegoAppState):
@@ -161,10 +165,12 @@ def __run_embed(window: AppWindow, state: StegoAppState):
         if encrypt:
             message = crypt_byte(message, str_to_ndarray(key))["result_byte"]
         state.stego_obj_data = inject_message(data, message, filename, random=random, seed=seed)
-    except Exception as e:
+    except Exception:
         show_error_box("Execution Failure")
-        raise e
         return
+
+    fidelity = psnr(state.cover_obj_data, state.stego_obj_data)
+    window.psnrField.setText(str(fidelity))
 
     if state.working_file_type == IMAGE_FILE_TYPE:
         window.stegoObjectImage.clear()
@@ -196,8 +202,7 @@ def __run_extract(window: AppWindow, state: StegoAppState):
         output = output.tobytes()
         if encrypt:
             output = crypt_byte(output, str_to_ndarray(key))["result_byte"]
-    except Exception as e:
-        print(e)
+    except Exception:
         show_error_box("Execution Failure")
         return
 
