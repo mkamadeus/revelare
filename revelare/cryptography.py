@@ -47,8 +47,8 @@ def crypt_byte(message: np.ndarray, key: np.ndarray) -> dict:
     # Generate keystream of length len(message)
     keystream_obj = rc4_prga(perm, len(message))
     # Pad the array to be divisible by 8
-    lenpad = (-len(message) % 8)
-    if(lenpad > 0):
+    lenpad = -len(message) % 8
+    if lenpad > 0:
         message = np.append(message, [0 for i in range(lenpad)])
     keystream_padded = rc4_prga(copy_perm, len(message))["keystream"]
 
@@ -63,7 +63,17 @@ def crypt_byte(message: np.ndarray, key: np.ndarray) -> dict:
         keystream_matrix = np.unpackbits(np.array(temp, dtype=np.uint8), axis=1)
 
         # Jumlahkan transpose dari message_matrix, keystream_matrix, dan transpose dari keystream_matrix
-        temp = np.array([[message_matrix[j][i] ^ keystream_matrix[i][j] ^ keystream_matrix[j][i] for j in range(8)] for i in range(8)])
+        temp = np.array(
+            [
+                [
+                    message_matrix[j][i]
+                    ^ keystream_matrix[i][j]
+                    ^ keystream_matrix[j][i]
+                    for j in range(8)
+                ]
+                for i in range(8)
+            ]
+        )
         result_matrix = np.packbits(temp)
         for i in range(8):
             res.append(result_matrix[i])
@@ -73,5 +83,5 @@ def crypt_byte(message: np.ndarray, key: np.ndarray) -> dict:
         "keystream": "".join(map(chr, keystream_obj["keystream"])),
         "perm": perm,
         "result": "".join(map(chr, res)),
-        "result_byte": np.array(res)
+        "result_byte": np.array(res),
     }

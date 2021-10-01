@@ -75,21 +75,31 @@ class AppWindow(QMainWindow):
         self.permutationHeaderLayout.addWidget(self.rc4KeyLineEdit)
 
         self.permutationRowWidget = [QWidget(self.mainWidget) for i in range(16)]
-        self.permutationRowLayout = [QHBoxLayout(self.permutationRowWidget[i]) for i in range(16)]
+        self.permutationRowLayout = [
+            QHBoxLayout(self.permutationRowWidget[i]) for i in range(16)
+        ]
 
-        self.permutationLabel = [QLabel(self.permutationLayoutWidget) for i in range(256)]
-        self.permutationLineEdit = [QLineEdit(self.permutationLayoutWidget) for i in range(256)]
+        self.permutationLabel = [
+            QLabel(self.permutationLayoutWidget) for i in range(256)
+        ]
+        self.permutationLineEdit = [
+            QLineEdit(self.permutationLayoutWidget) for i in range(256)
+        ]
         for i in range(16):
             self.permutationRowLayout[i].setContentsMargins(0, 0, 0, 0)
             self.permutationObjLayout.addWidget(self.permutationRowWidget[i])
             for j in range(16):
                 self.permutationLabel[16 * i + j].setText(str(16 * i + j))
                 self.permutationLabel[16 * i + j].setFixedSize(20, 16)
-                self.permutationRowLayout[i].addWidget(self.permutationLabel[16 * i + j])
+                self.permutationRowLayout[i].addWidget(
+                    self.permutationLabel[16 * i + j]
+                )
                 self.permutationLineEdit[16 * i + j].setText(str(16 * i + j))
                 self.permutationLineEdit[16 * i + j].setFixedSize(30, 16)
                 self.permutationLineEdit[16 * i + j].setReadOnly(True)
-                self.permutationRowLayout[i].addWidget(self.permutationLineEdit[16 * i + j])
+                self.permutationRowLayout[i].addWidget(
+                    self.permutationLineEdit[16 * i + j]
+                )
 
         self.explanationLabel = QLabel(self.permutationLayoutWidget)
         self.permutationObjLayout.addWidget(self.explanationLabel)
@@ -193,10 +203,16 @@ class AppWindow(QMainWindow):
         # Load File Input
         self.coverObjInputLabel = QPushButton("Load Cover Object", self.coverFormWidget)
         self.coverObjInputField = QLabel("No file inserted", self.coverFormWidget)
-        self.coverObjInputField.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Preferred)
+        self.coverObjInputField.setSizePolicy(
+            QSizePolicy.Ignored, QSizePolicy.Preferred
+        )
         self.coverObjInputField.setWordWrap(True)
-        self.coverFormLayout.setWidget(0, QFormLayout.LabelRole, self.coverObjInputLabel)
-        self.coverFormLayout.setWidget(0, QFormLayout.FieldRole, self.coverObjInputField)
+        self.coverFormLayout.setWidget(
+            0, QFormLayout.LabelRole, self.coverObjInputLabel
+        )
+        self.coverFormLayout.setWidget(
+            0, QFormLayout.FieldRole, self.coverObjInputField
+        )
 
         # Embedded Message
         self.embeddedMsgLabel = QPushButton("Load Embed Message", self.coverFormWidget)
@@ -206,7 +222,9 @@ class AppWindow(QMainWindow):
         self.coverFormLayout.setWidget(1, QFormLayout.LabelRole, self.embeddedMsgLabel)
         self.coverFormLayout.setWidget(1, QFormLayout.FieldRole, self.embeddedMsgField)
 
-        self.tempSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.tempSpacer = QSpacerItem(
+            20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding
+        )
         self.coverObjLayout.addItem(self.tempSpacer)
 
         # -- Middle Column --
@@ -216,7 +234,9 @@ class AppWindow(QMainWindow):
         self.settingLayout.setContentsMargins(0, 0, 0, 0)
         self.horizontalLayout.addWidget(self.settingWidget)
 
-        self.tempSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.tempSpacer = QSpacerItem(
+            20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding
+        )
         self.settingLayout.addItem(self.tempSpacer)
 
         # Embed Button
@@ -234,7 +254,9 @@ class AppWindow(QMainWindow):
         # Random Seed
         self.encryptKeyLabel = QLabel("Encryption Key", self.settingWidget)
         self.settingLayout.addWidget(self.encryptKeyLabel)
-        self.encryptKeyField = QLineEdit("The meaning of life, the universe, and everything", self.settingWidget)
+        self.encryptKeyField = QLineEdit(
+            "The meaning of life, the universe, and everything", self.settingWidget
+        )
         self.settingLayout.addWidget(self.encryptKeyField)
 
         # Sequential / Random
@@ -252,7 +274,9 @@ class AppWindow(QMainWindow):
         self.embedSeedField.setValidator(QIntValidator())
         self.settingLayout.addWidget(self.embedSeedField)
 
-        self.tempSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.tempSpacer = QSpacerItem(
+            20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding
+        )
         self.settingLayout.addItem(self.tempSpacer)
 
         # -- Right Column --
@@ -291,10 +315,16 @@ class AppWindow(QMainWindow):
         # Load File Input
         self.stegoObjInputLabel = QPushButton("Load File", self.stegoFormWidget)
         self.stegoObjInputField = QLabel("No file inserted", self.stegoFormWidget)
-        self.stegoObjInputField.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Preferred)
+        self.stegoObjInputField.setSizePolicy(
+            QSizePolicy.Ignored, QSizePolicy.Preferred
+        )
         self.stegoObjInputField.setWordWrap(True)
-        self.stegoFormLayout.setWidget(0, QFormLayout.LabelRole, self.stegoObjInputLabel)
-        self.stegoFormLayout.setWidget(0, QFormLayout.FieldRole, self.stegoObjInputField)
+        self.stegoFormLayout.setWidget(
+            0, QFormLayout.LabelRole, self.stegoObjInputLabel
+        )
+        self.stegoFormLayout.setWidget(
+            0, QFormLayout.FieldRole, self.stegoObjInputField
+        )
 
         # Save File Button
         self.stegoObjSaveBtn = QPushButton("Save File", self.stegoFormWidget)
@@ -305,7 +335,9 @@ class AppWindow(QMainWindow):
         self.psnrField = QLabel("", self.stegoFormWidget)
         self.stegoFormLayout.setWidget(2, QFormLayout.FieldRole, self.psnrField)
 
-        self.tempSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.tempSpacer = QSpacerItem(
+            20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding
+        )
         self.stegoObjLayout.addItem(self.tempSpacer)
 
         self.setCentralWidget(self.mainWidget)
@@ -343,7 +375,9 @@ def show_open_file_dialog(options: str = "All Files (*)") -> str:
     return fileName
 
 
-def show_save_file_dialog(options: str = "All Files (*)", initial_file_name: str = "") -> str:
+def show_save_file_dialog(
+    options: str = "All Files (*)", initial_file_name: str = ""
+) -> str:
     fileName, _ = QFileDialog.getSaveFileName(None, "", initial_file_name, options)
     return fileName
 

@@ -6,7 +6,12 @@ from revelare.fidelity import psnr
 from revelare.utils import load_img, load_wav, write_img, write_wav
 from revelare.steganography import extract_message, inject_message
 import numpy as np
-from revelare.gui.main import AppWindow, show_error_box, show_open_file_dialog, show_save_file_dialog
+from revelare.gui.main import (
+    AppWindow,
+    show_error_box,
+    show_open_file_dialog,
+    show_save_file_dialog,
+)
 
 IMAGE_FILE_TYPE = 0
 AUDIO_FILE_TYPE = 1
@@ -134,7 +139,9 @@ def __save_stego_obj(window: AppWindow, state: StegoAppState):
         show_error_box("Cannot save file", "No data to write")
         return
     if state.working_file_type == 0:
-        filename = show_save_file_dialog("Portable Network Graphics (*.png);;Bitmap File (*.bmp)")
+        filename = show_save_file_dialog(
+            "Portable Network Graphics (*.png);;Bitmap File (*.bmp)"
+        )
         if len(filename) == 0:
             return
         write_img(state.stego_obj_data, filename)
@@ -164,7 +171,9 @@ def __run_embed(window: AppWindow, state: StegoAppState):
     try:
         if encrypt:
             message = crypt_byte(message, str_to_ndarray(key))["result_byte"]
-        state.stego_obj_data = inject_message(data, message, filename, random=random, seed=seed)
+        state.stego_obj_data = inject_message(
+            data, message, filename, random=random, seed=seed
+        )
     except Exception:
         show_error_box("Execution Failure")
         return
@@ -208,7 +217,9 @@ def __run_extract(window: AppWindow, state: StegoAppState):
 
     try:
         extension = re.findall(r"(?<=\.)\w+$", filename)[0]
-        filename = show_save_file_dialog(f"Original File Type (.{extension});;All Files (*)", filename)
+        filename = show_save_file_dialog(
+            f"Original File Type (.{extension});;All Files (*)", filename
+        )
     except Exception:
         filename = show_save_file_dialog("All Files (*)", filename)
 
