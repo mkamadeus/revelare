@@ -19,7 +19,7 @@ def rc4_prga(perm: np.ndarray, length: int) -> dict:
     res = []
     i = 0
     j = 0
-    t = 0
+    t = (perm[i] + perm[j]) % 256
     for idx in range(length):
         i = idx % 256
         j = (j + perm[i]) % 256

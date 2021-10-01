@@ -32,6 +32,18 @@ def __crypto_refresh(window: AppWindow, state: CryptoAppState):
     window.permutationLineEdit[result["keystream_obj"]["latest-i"]].setStyleSheet("border: 3px solid green;")
     window.permutationLineEdit[result["keystream_obj"]["latest-j"]].setStyleSheet("border: 3px solid blue;")
     window.permutationLineEdit[result["keystream_obj"]["latest-t"]].setStyleSheet("border: 3px solid red;")
+    perm_i = window.permutationLineEdit[result["keystream_obj"]["latest-i"]].text()
+    perm_j = window.permutationLineEdit[result["keystream_obj"]["latest-j"]].text()
+    perm_t = window.permutationLineEdit[result["keystream_obj"]["latest-t"]].text()
+    window.explanationLabel.setText(
+        '<html><head/><body><p align="center">'
+        '<span style=" color:\'green\';">i = ' + str(result["keystream_obj"]["latest-i"]) + '</span>'
+        '<span> dan </span>'
+        '<span style=" color:\'blue\';">j = ' + str(result["keystream_obj"]["latest-j"]) + '</span>'
+        '<span> menyebabkan </span>'
+        '<span style=" color:\'red\';">t = perm[i] + perm[j] = ' + perm_i + ' + ' + perm_j + " = " + str(result["keystream_obj"]["latest-t"]) + '</span>'
+        '<span> sehingga menghasilkan karakter keystream perm[t] = chr(' + perm_t + ') = ' + chr(int(perm_t)) + '</span>'
+        "</p></body></html>")
 
     # Update keystream and result
     window.KeystreamField.setText(result["keystream"])

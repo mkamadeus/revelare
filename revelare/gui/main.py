@@ -91,6 +91,9 @@ class AppWindow(QMainWindow):
                 self.permutationLineEdit[16 * i + j].setReadOnly(True)
                 self.permutationRowLayout[i].addWidget(self.permutationLineEdit[16 * i + j])
 
+        self.explanationLabel = QLabel(self.permutationLayoutWidget)
+        self.permutationObjLayout.addWidget(self.explanationLabel)
+
         # -- Right Column
         self.cryptoLayoutWidget = QWidget(self.mainWidget)
         self.cryptoObjLayout = QVBoxLayout(self.cryptoLayoutWidget)
