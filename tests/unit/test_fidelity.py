@@ -25,4 +25,4 @@ def test_rmse(target, output, error):
 def test_psnr(target, output, error):
     assert target.shape == output.shape
     err = psnr(target, output)
-    assert err == error
+    assert err == pytest.approx(error)
