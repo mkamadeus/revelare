@@ -1,7 +1,9 @@
+import re
 from PIL import Image, ImageQt
 from PyQt5.QtGui import QPixmap
+from revelare.cryptography import crypt_byte, str_to_ndarray
 from revelare.utils import load_img, load_wav, write_img, write_wav
-from revelare.steganography import extract_message, inject_message, is_valid
+from revelare.steganography import extract_message, inject_message
 import numpy as np
 from revelare.gui.main import AppWindow, show_error_box, show_open_file_dialog, show_save_file_dialog
 
@@ -34,13 +36,16 @@ def connect_app_to_state(window: AppWindow, state: StegoAppState):
 
 
 def __load_cover_obj(window: AppWindow, state: StegoAppState):
-    filename = show_open_file_dialog("Image Files (*.png *.bmp);;Audio Files (*.wav)")
+    filename = show_open_file_dialog(
+        "Accepted Files (*.png *.bmp *.wav);;Image Files (*.png *.bmp);;Audio Files (*.wav)"
+    )
     filetype = __check_file_type(filename)
 
     if filetype == IMAGE_FILE_TYPE:
         state.cover_obj_data = load_img(filename)
         state.working_file_type = IMAGE_FILE_TYPE
 
+        window.coverObjectImage.clear()
         image = Image.fromarray(state.cover_obj_data, "RGB")
         qim = ImageQt.ImageQt(image)
         pixmap = QPixmap.fromImage(qim)
@@ -51,6 +56,10 @@ def __load_cover_obj(window: AppWindow, state: StegoAppState):
     elif filetype == AUDIO_FILE_TYPE:
         state.audio_sample_rate, state.cover_obj_data = load_wav(filename)
         state.working_file_type = AUDIO_FILE_TYPE
+
+        window.coverObjectImage.clear()
+        window.coverObjectImage.setText("Cannot preview audio file")
+        window.coverObjectImage.setFixedSize(682, 250)
     else:
         return
 
@@ -58,6 +67,7 @@ def __load_cover_obj(window: AppWindow, state: StegoAppState):
     window.coverObjInputField.setText(filename)
 
     state.stego_obj_filename = None
+    window.stegoObjectImage.clear()
     window.stegoObjInputField.setText("No file inserted")
     state.stego_obj_data = None
 
@@ -73,7 +83,7 @@ def __load_embed_msg(window: AppWindow, state: StegoAppState):
         show_error_box("Cannot read file")
 
     with f:
-        state.embed_msg_data = np.array(list(f.read())).view(np.uint8)
+        state.embed_msg_data = np.frombuffer(f.read(), np.uint8)
 
     state.embed_msg_filename = filename
     window.embeddedMsgField.setText(filename)
@@ -84,13 +94,16 @@ def __load_embed_msg(window: AppWindow, state: StegoAppState):
 
 
 def __load_stego_obj(window: AppWindow, state: StegoAppState):
-    filename = show_open_file_dialog("Image Files (*.png *.bmp);;Audio Files (*.wav)")
+    filename = show_open_file_dialog(
+        "Accepted Files (*.png *.bmp *.wav);;Image Files (*.png *.bmp);;Audio Files (*.wav)"
+    )
     filetype = __check_file_type(filename)
 
     if filetype == IMAGE_FILE_TYPE:
         state.stego_obj_data = load_img(filename)
         state.working_file_type = IMAGE_FILE_TYPE
 
+        window.stegoObjectImage.clear()
         image = Image.fromarray(state.stego_obj_data, "RGB")
         qim = ImageQt.ImageQt(image)
         pixmap = QPixmap.fromImage(qim)
@@ -101,6 +114,10 @@ def __load_stego_obj(window: AppWindow, state: StegoAppState):
     elif filetype == AUDIO_FILE_TYPE:
         state.audio_sample_rate, state.stego_obj_data = load_wav(filename)
         state.working_file_type = AUDIO_FILE_TYPE
+
+        window.stegoObjectImage.clear()
+        window.stegoObjectImage.setText("Cannot preview audio file")
+        window.stegoObjectImage.setFixedSize(682, 250)
     else:
         return
 
@@ -130,39 +147,66 @@ def __save_stego_obj(window: AppWindow, state: StegoAppState):
 def __run_embed(window: AppWindow, state: StegoAppState):
     message = state.embed_msg_data
     data = state.cover_obj_data
+    filename = state.embed_msg_filename
     seed = window.get_seed()
     random = window.get_embed_mode() == 1
+    encrypt = window.get_encrypt()
+    key = window.get_key()
 
     if data is None or message is None:
         show_error_box("Execution Failure", "Invalid Input")
         return
 
-    if not is_valid(data):
-        show_error_box("Execution Failure", "Cover object invalid")
+    try:
+        if encrypt:
+            message = crypt_byte(message, str_to_ndarray(key))["result_byte"]
+        state.stego_obj_data = inject_message(data, message, filename, random=random, seed=seed)
+    except Exception as e:
+        show_error_box("Execution Failure")
+        raise e
         return
 
-    state.stego_obj_data = inject_message(data, message, random=random, seed=seed)
-
-    image = Image.fromarray(state.stego_obj_data, "RGB")
-    qim = ImageQt.ImageQt(image)
-    pixmap = QPixmap.fromImage(qim)
-    window.stegoimg = qim
-    window.stegoObjectImage.setPixmap(pixmap)
-    window.stegoObjectImage.setScaledContents(True)
-    window.stegoObjectImage.setFixedWidth(pixmap.width() / pixmap.height() * 250)
+    if state.working_file_type == IMAGE_FILE_TYPE:
+        window.stegoObjectImage.clear()
+        image = Image.fromarray(state.stego_obj_data, "RGB")
+        qim = ImageQt.ImageQt(image)
+        pixmap = QPixmap.fromImage(qim)
+        window.stegoimg = qim
+        window.stegoObjectImage.setPixmap(pixmap)
+        window.stegoObjectImage.setScaledContents(True)
+        window.stegoObjectImage.setFixedWidth(pixmap.width() / pixmap.height() * 250)
+    elif state.working_file_type == AUDIO_FILE_TYPE:
+        window.stegoObjectImage.clear()
+        window.stegoObjectImage.setText("Cannot preview audio file")
+        window.stegoObjectImage.setFixedSize(682, 250)
 
 
 def __run_extract(window: AppWindow, state: StegoAppState):
     data = state.stego_obj_data
+    encrypt = window.get_encrypt()
+    key = window.get_key()
 
     if data is None:
         show_error_box("Execution Failure", "No stego object to extract from")
         return
 
-    print(extract_message(data))
-    print(extract_message(data).view(np.uint))
+    try:
+        filename, output = extract_message(data)
 
-    filename = show_save_file_dialog("All Files (*)")
+        output = output.tobytes()
+        if encrypt:
+            output = crypt_byte(output, str_to_ndarray(key))["result_byte"]
+    except Exception as e:
+        print(e)
+        show_error_box("Execution Failure")
+        return
+
+    try:
+        extension = re.findall(r"(?<=\.)\w+$", filename)[0]
+        filename = show_save_file_dialog(f"Original File Type (.{extension});;All Files (*)", filename)
+    except Exception:
+        filename = show_save_file_dialog("All Files (*)", filename)
+
     if len(filename) == 0:
         return
 
@@ -172,7 +216,7 @@ def __run_extract(window: AppWindow, state: StegoAppState):
         show_error_box("Cannot read file")
 
     with f:
-        f.write(bytes(extract_message(data).view(np.uint).tolist()))
+        f.write(output)
 
 
 # ----- UTILS ----- #

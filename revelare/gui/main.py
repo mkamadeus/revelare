@@ -19,6 +19,7 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
     QLabel,
     QSizePolicy,
+    QRadioButton,
 )
 
 
@@ -90,6 +91,9 @@ class AppWindow(QMainWindow):
                 self.permutationLineEdit[16 * i + j].setReadOnly(True)
                 self.permutationRowLayout[i].addWidget(self.permutationLineEdit[16 * i + j])
 
+        self.explanationLabel = QLabel(self.permutationLayoutWidget)
+        self.permutationObjLayout.addWidget(self.explanationLabel)
+
         # -- Right Column
         self.cryptoLayoutWidget = QWidget(self.mainWidget)
         self.cryptoObjLayout = QVBoxLayout(self.cryptoLayoutWidget)
@@ -97,9 +101,24 @@ class AppWindow(QMainWindow):
         self.horizontalLayout1.addWidget(self.cryptoLayoutWidget)
 
         # Message Header
+        self.messageRowWidget = QWidget(self.mainWidget)
+        self.messageRowLayout = QHBoxLayout(self.messageRowWidget)
+        self.messageRowLayout.setContentsMargins(0, 0, 0, 0)
+        self.cryptoObjLayout.addWidget(self.messageRowWidget)
+
         self.MessageLayoutTitle = QLabel(self.cryptoLayoutWidget)
         self.MessageLayoutTitle.setText("Teks")
-        self.cryptoObjLayout.addWidget(self.MessageLayoutTitle)
+        self.messageRowLayout.addWidget(self.MessageLayoutTitle)
+
+        self.messageLoadBtn = QPushButton("Load File", self.messageRowWidget)
+        self.messageRowLayout.addWidget(self.messageLoadBtn)
+
+        self.textRadioBtn = QRadioButton("as Text")
+        self.textRadioBtn.setChecked(True)
+        self.messageRowLayout.addWidget(self.textRadioBtn)
+
+        self.byteRadioBtn = QRadioButton("as Bytes")
+        self.messageRowLayout.addWidget(self.byteRadioBtn)
 
         # Message TextArea
         self.MessageField = QTextEdit(self.cryptoLayoutWidget)
@@ -116,11 +135,21 @@ class AppWindow(QMainWindow):
         self.cryptoObjLayout.addWidget(self.KeystreamField)
 
         # Result Header
-        self.ResultLayoutTitle = QLabel(self.cryptoLayoutWidget)
-        self.ResultLayoutTitle.setText("Result")
-        self.cryptoObjLayout.addWidget(self.ResultLayoutTitle)
+        self.resultRowWidget = QWidget(self.mainWidget)
+        self.resultRowLayout = QHBoxLayout(self.resultRowWidget)
+        self.resultRowLayout.setContentsMargins(0, 0, 0, 0)
+        self.cryptoObjLayout.addWidget(self.resultRowWidget)
+
+        self.resultLayoutTitle = QLabel(self.cryptoLayoutWidget)
+        self.resultLayoutTitle.setText("Result")
+        self.resultRowLayout.addWidget(self.resultLayoutTitle)
+
+        self.resultSaveBtn = QPushButton("Save File", self.resultRowWidget)
+        self.resultRowLayout.addWidget(self.resultSaveBtn)
 
         # Result TextArea
+        self.resultText = ""
+        self.resultBytes = []
         self.ResultField = QTextEdit(self.cryptoLayoutWidget)
         self.ResultField.setReadOnly(True)
         self.cryptoObjLayout.addWidget(self.ResultField)
@@ -202,6 +231,12 @@ class AppWindow(QMainWindow):
         self.stegoEncryptField = QCheckBox("Encrypt", self.settingWidget)
         self.settingLayout.addWidget(self.stegoEncryptField)
 
+        # Random Seed
+        self.encryptKeyLabel = QLabel("Encryption Key", self.settingWidget)
+        self.settingLayout.addWidget(self.encryptKeyLabel)
+        self.encryptKeyField = QLineEdit("The meaning of life, the universe, and everything", self.settingWidget)
+        self.settingLayout.addWidget(self.encryptKeyField)
+
         # Sequential / Random
         self.embedModeLabel = QLabel("Mode", self.settingWidget)
         self.settingLayout.addWidget(self.embedModeLabel)
@@ -281,6 +316,12 @@ class AppWindow(QMainWindow):
     def get_embed_mode(self):
         return self.embedModeField.currentIndex()
 
+    def get_encrypt(self) -> bool:
+        return self.stegoEncryptField.isChecked()
+
+    def get_key(self):
+        return self.encryptKeyField.text()
+
 
 def show_error_box(message: str, description: str = None):
     msg = QMessageBox()
@@ -297,8 +338,8 @@ def show_open_file_dialog(options: str = "All Files (*)") -> str:
     return fileName
 
 
-def show_save_file_dialog(options: str = "All Files (*)") -> str:
-    fileName, _ = QFileDialog.getSaveFileName(None, "", "", options)
+def show_save_file_dialog(options: str = "All Files (*)", initial_file_name: str = "") -> str:
+    fileName, _ = QFileDialog.getSaveFileName(None, "", initial_file_name, options)
     return fileName
 
 
